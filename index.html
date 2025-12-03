@@ -7,25 +7,27 @@
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="theme-blue">
 
-    <!-- Header -->
+    <!-- HEADER -->
     <header class="header">
         <div class="logo">
             <span class="coin-icon">🪙</span>
             <h1>Finance Tracker</h1>
         </div>
 
-        <button id="darkModeToggle" class="dark-btn">🌙</button>
+        <div class="toggles">
+            <button id="themeToggle" class="toggle-btn">🎨</button>
+            <button id="darkModeToggle" class="toggle-btn">🌙</button>
+        </div>
     </header>
 
-    <!-- Add Transaction -->
-    <section class="add-transaction">
+    <!-- ADD TRANSACTION -->
+    <section class="add-transaction card">
         <h2>Add Transaction</h2>
 
         <form id="transactionForm">
             <input type="text" id="description" placeholder="Description" required />
-
             <input type="number" id="amount" placeholder="Amount" required />
 
             <select id="category">
@@ -41,8 +43,8 @@
         </form>
     </section>
 
-    <!-- Filters -->
-    <section class="filters">
+    <!-- FILTERS -->
+    <section class="filters card">
         <select id="filterCategory">
             <option value="All">All Categories</option>
             <option value="Salary">Salary</option>
@@ -56,7 +58,7 @@
         <button id="exportCSV" class="export-btn">Export CSV</button>
     </section>
 
-    <!-- Summary -->
+    <!-- SUMMARY -->
     <section class="summary">
         <div class="card">
             <h3>Total Income</h3>
@@ -74,13 +76,13 @@
         </div>
     </section>
 
-    <!-- Chart -->
-    <section class="chart-section">
+    <!-- CHART -->
+    <section class="chart-section card">
         <canvas id="financeChart"></canvas>
     </section>
 
-    <!-- Transactions List -->
-    <section class="transactions">
+    <!-- TRANSACTIONS -->
+    <section class="transactions card">
         <h2>Transactions</h2>
         <ul id="transactionList"></ul>
     </section>

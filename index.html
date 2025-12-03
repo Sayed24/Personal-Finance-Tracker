@@ -1,36 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Personal Finance Tracker</title>
-    <link rel="stylesheet" href="style.css">
 
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-    <header>
-        <h1>Personal Finance Tracker</h1>
-        <p>Track your income, expenses, and monthly spending.</p>
+    <!-- Logo + header -->
+    <header class="site-header">
+        <div class="logo">
+            <!-- Coin Icon (chosen: D) + Text -->
+            <svg class="coin-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" fill="url(#g)"/>
+                <path d="M12 7v10M9 9h6a2 2 0 110 4h-4" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs>
+                    <linearGradient id="g" x1="0" x2="1">
+                        <stop offset="0" stop-color="#F6C34E"/>
+                        <stop offset="1" stop-color="#F0A500"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div class="title-block">
+                <h1>Finance Tracker</h1>
+                <p class="subtitle">Modern UI • Income & Expenses • Chart.js</p>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <label class="toggle">
+                <input id="darkModeToggle" type="checkbox" />
+                <span class="slider"></span>
+            </label>
+            <button id="exportCsvBtn" class="btn small"><i class="fa-regular fa-file-csv"></i> Export CSV</button>
+        </div>
     </header>
 
-    <section class="tracker">
+    <main>
+        <section class="tracker">
 
-        <div class="input-section">
-            <h2>Add Transaction</h2>
+            <div class="input-section">
+                <h2>Add Transaction</h2>
 
-            <input id="title" type="text" placeholder="Title (e.g., Salary, Rent)" />
+                <input id="title" type="text" placeholder="Title (e.g., Salary, Rent)" />
 
-            <input id="amount" type="number" placeholder="Amount" />
+                <input id="amount" type="number" placeholder="Amount" />
 
-            <select id="type">
+                <select id="type">
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+
+                <select id="category">
+                    <option value="General">General</option>
+                    <option value="Salary">Salary</option>
+                    <option value="Food">Food</option>
+                    <option value="Bills">Bills</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Shopping">Shopping</option>
+                </select>
+
+                <button id="addBtn">Add Transaction</button>
+
+                <!-- Added: quick actions -->
+                <div class="quick-actions">
+                    <label for="filterCategory">Filter:</label>
+                    <select id="filterCategory">
+                        <option value="all">All categories</option>
+                        <option value="General">General</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Food">Food</option>
+                        <option value="Bills">Bills</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Shopping">Shopping</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="summary-section">
+                <h2>Summary</h2>
+
+                <div class="summary-box">
+                    <p>Total Income</p>
+                    <h3 id="totalIncome">$0</h3>
+                </div>
+
+                <div class="summary-box">
+                    <p>Total Expenses</p>
+                    <h3 id="totalExpense">$0</h3>
+                </div>
+
+                <div class="summary-box">
+                    <p>Balance</p>
+                    <h3 id="balance">$0</h3>
+                </div>
+            </div>
+        </section>
+
+        <section class="transactions">
+            <div class="transactions-header">
+                <h2>Transactions</h2>
+                <div class="transactions-summary">
+                    <small id="transactionsCount">0</small>
+                </div>
+            </div>
+
+            <div id="transactionList" class="transaction-list"></div>
+        </section>
+
+        <section class="chart-section">
+            <h2>Monthly Chart</h2>
+            <canvas id="financeChart"></canvas>
+        </section>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal" aria-hidden="true">
+        <div class="modal-content">
+            <h3>Edit Transaction</h3>
+            <input id="editTitle" type="text" placeholder="Title" />
+            <input id="editAmount" type="number" placeholder="Amount" />
+            <select id="editType">
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
             </select>
-
-            <select id="category">
+            <select id="editCategory">
                 <option value="General">General</option>
                 <option value="Salary">Salary</option>
                 <option value="Food">Food</option>
@@ -39,38 +140,16 @@
                 <option value="Shopping">Shopping</option>
             </select>
 
-            <button id="addBtn">Add Transaction</button>
-        </div>
-
-        <div class="summary-section">
-            <h2>Summary</h2>
-
-            <div class="summary-box">
-                <p>Total Income</p>
-                <h3 id="totalIncome">$0</h3>
-            </div>
-
-            <div class="summary-box">
-                <p>Total Expenses</p>
-                <h3 id="totalExpense">$0</h3>
-            </div>
-
-            <div class="summary-box">
-                <p>Balance</p>
-                <h3 id="balance">$0</h3>
+            <div class="modal-actions">
+                <button id="saveEditBtn" class="btn">Save</button>
+                <button id="cancelEditBtn" class="btn ghost">Cancel</button>
             </div>
         </div>
-    </section>
+    </div>
 
-    <section class="transactions">
-        <h2>Transactions</h2>
-        <div id="transactionList"></div>
-    </section>
-
-    <section>
-        <h2>Monthly Chart</h2>
-        <canvas id="financeChart"></canvas>
-    </section>
+    <footer class="site-footer">
+        <p>Built for interviews — show this live on your GitHub Pages link.</p>
+    </footer>
 
     <script src="script.js"></script>
 </body>

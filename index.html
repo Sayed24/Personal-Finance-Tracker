@@ -40,6 +40,7 @@
                 <span class="slider"></span>
             </label>
             <button id="exportCsvBtn" class="btn small"><i class="fa-regular fa-file-csv"></i> Export CSV</button>
+            <button id="printReportBtn" class="btn small"><i class="fa-solid fa-print"></i> Print Report</button>
         </div>
     </header>
 
@@ -65,6 +66,11 @@
                     <option value="Bills">Bills</option>
                     <option value="Transport">Transport</option>
                     <option value="Shopping">Shopping</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Health">Health</option>
+                    <option value="Education">Education</option>
+                    <option value="Savings">Savings</option>
+                    <option value="Investment">Investment</option>
                 </select>
 
                 <button id="addBtn">Add Transaction</button>
@@ -80,7 +86,21 @@
                         <option value="Bills">Bills</option>
                         <option value="Transport">Transport</option>
                         <option value="Shopping">Shopping</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Health">Health</option>
+                        <option value="Education">Education</option>
+                        <option value="Savings">Savings</option>
+                        <option value="Investment">Investment</option>
                     </select>
+
+                    <label for="groupBy">Group:</label>
+                    <select id="groupBy">
+                        <option value="none">None</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly" selected>Monthly</option>
+                    </select>
+
+                    <button id="seedBtn" class="btn small ghost">Seed Sample</button>
                 </div>
             </div>
 
@@ -101,6 +121,11 @@
                     <p>Balance</p>
                     <h3 id="balance">$0</h3>
                 </div>
+
+                <div class="summary-box small">
+                    <p>Period Summary</p>
+                    <div id="periodSummary">—</div>
+                </div>
             </div>
         </section>
 
@@ -116,8 +141,24 @@
         </section>
 
         <section class="chart-section">
-            <h2>Monthly Chart</h2>
-            <canvas id="financeChart"></canvas>
+            <div class="chart-controls">
+                <h2>Charts</h2>
+                <div class="chart-buttons">
+                    <button id="btnCategoryChart" class="btn small">Category Breakdown</button>
+                    <button id="btnTimeSeriesChart" class="btn small">Monthly Trend</button>
+                </div>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="financeChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Printable report area (hidden visually until print) -->
+        <section id="printArea" class="print-area" aria-hidden="true">
+            <h1>Finance Tracker — Report</h1>
+            <div id="printSummary"></div>
+            <div id="printTransactions"></div>
+            <div id="printCharts"></div>
         </section>
     </main>
 
@@ -138,6 +179,11 @@
                 <option value="Bills">Bills</option>
                 <option value="Transport">Transport</option>
                 <option value="Shopping">Shopping</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Health">Health</option>
+                <option value="Education">Education</option>
+                <option value="Savings">Savings</option>
+                <option value="Investment">Investment</option>
             </select>
 
             <div class="modal-actions">

@@ -1,92 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Personal Finance Tracker</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Finance Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="theme-blue">
 
-    <!-- HEADER -->
-    <header class="header">
-        <div class="logo">
-            <span class="coin-icon">🪙</span>
-            <h1>Finance Tracker</h1>
-        </div>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <span class="coin-icon">🪙</span>
+      <h1>Finance Tracker</h1>
+    </div>
+    <div class="toggles">
+      <button id="menuToggle" class="toggle-btn">☰</button>
+      <button id="themeToggle" class="toggle-btn">🎨</button>
+      <button id="darkModeToggle" class="toggle-btn">🌙</button>
+    </div>
+  </header>
 
-        <div class="toggles">
-            <button id="themeToggle" class="toggle-btn">🎨</button>
-            <button id="darkModeToggle" class="toggle-btn">🌙</button>
-        </div>
-    </header>
+  <!-- MOBILE NAVIGATION -->
+  <nav id="mobileNav" class="mobile-nav">
+    <ul>
+      <li><a href="#add-transaction">Add Transaction</a></li>
+      <li><a href="#summary">Summary</a></li>
+      <li><a href="#chart-section">Charts</a></li>
+      <li><a href="#transactions">Transactions</a></li>
+    </ul>
+  </nav>
 
-    <!-- ADD TRANSACTION -->
-    <section class="add-transaction card">
-        <h2>Add Transaction</h2>
+  <!-- ADD TRANSACTION -->
+  <section id="add-transaction" class="add-transaction card">
+    <h2>Add Transaction</h2>
+    <form id="transactionForm">
+      <input type="text" id="description" placeholder="Description" required>
+      <input type="number" id="amount" placeholder="Amount" required>
+      <select id="category">
+        <option value="Salary">Salary</option>
+        <option value="Food">Food</option>
+        <option value="Bills">Bills</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Other">Other</option>
+      </select>
+      <button type="submit" class="add-btn">Add</button>
+    </form>
+  </section>
 
-        <form id="transactionForm">
-            <input type="text" id="description" placeholder="Description" required />
-            <input type="number" id="amount" placeholder="Amount" required />
+  <!-- FILTERS -->
+  <section class="filters card">
+    <select id="filterCategory">
+      <option value="All">All Categories</option>
+      <option value="Salary">Salary</option>
+      <option value="Food">Food</option>
+      <option value="Bills">Bills</option>
+      <option value="Shopping">Shopping</option>
+      <option value="Entertainment">Entertainment</option>
+      <option value="Other">Other</option>
+    </select>
+    <button id="exportCSV" class="export-btn">Export CSV</button>
+  </section>
 
-            <select id="category">
-                <option value="Salary">Salary</option>
-                <option value="Food">Food</option>
-                <option value="Bills">Bills</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Other">Other</option>
-            </select>
+  <!-- SUMMARY -->
+  <section id="summary" class="summary">
+    <div class="card">
+      <h3>Total Income</h3>
+      <p id="totalIncome">$0</p>
+    </div>
+    <div class="card">
+      <h3>Total Expenses</h3>
+      <p id="totalExpenses">$0</p>
+    </div>
+    <div class="card">
+      <h3>Balance</h3>
+      <p id="balance">$0</p>
+    </div>
+  </section>
 
-            <button type="submit" class="add-btn">Add</button>
-        </form>
-    </section>
+  <!-- CHART -->
+  <section id="chart-section" class="chart-section card">
+    <canvas id="financeChart"></canvas>
+  </section>
 
-    <!-- FILTERS -->
-    <section class="filters card">
-        <select id="filterCategory">
-            <option value="All">All Categories</option>
-            <option value="Salary">Salary</option>
-            <option value="Food">Food</option>
-            <option value="Bills">Bills</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Other">Other</option>
-        </select>
+  <!-- TRANSACTIONS -->
+  <section id="transactions" class="transactions card">
+    <h2>Transactions</h2>
+    <ul id="transactionList"></ul>
+  </section>
 
-        <button id="exportCSV" class="export-btn">Export CSV</button>
-    </section>
-
-    <!-- SUMMARY -->
-    <section class="summary">
-        <div class="card">
-            <h3>Total Income</h3>
-            <p id="totalIncome">$0</p>
-        </div>
-
-        <div class="card">
-            <h3>Total Expenses</h3>
-            <p id="totalExpenses">$0</p>
-        </div>
-
-        <div class="card">
-            <h3>Balance</h3>
-            <p id="balance">$0</p>
-        </div>
-    </section>
-
-    <!-- CHART -->
-    <section class="chart-section card">
-        <canvas id="financeChart"></canvas>
-    </section>
-
-    <!-- TRANSACTIONS -->
-    <section class="transactions card">
-        <h2>Transactions</h2>
-        <ul id="transactionList"></ul>
-    </section>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

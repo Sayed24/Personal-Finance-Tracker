@@ -391,3 +391,233 @@ document.addEventListener("keydown", (e) => {
         editIndex = null;
     }
 });
+
+/* =========================
+   ADDITIONAL NEW FEATURES (all added WITHOUT removing any original code)
+   - Monthly time-series chart (line)
+   - Grouping (weekly/monthly) summaries
+   - Print report creation + print button
+   - More categories added already in HTML
+   - Single-seed and UI hooks (seed button)
+   - Safe parsing of edit-suffixed dates
+   ========================= */
+
+/* Utility: parse a date string created by this app (handles " (edited)" suffix) */
+function parseDateFromString(dateStr) {
+    if (!dateStr) return null;
+    // If it contains "(", remove everything from first space + '(' to allow "MM/DD/YYYY (edited)"
+    const idx = dateStr.indexOf('(');
+    const cleaned = idx !== -1 ? dateStr.slice(0, idx).trim() : dateStr.trim();
+    // Some browsers may store dates as "YYYY-MM-DD" in seed; try Date parsing
+    const d = new Date(cleaned);
+    if (!isNaN(d)) return d;
+    // Try locale / MM/DD/YYYY fallback (split by /)
+    const parts = cleaned.split(/[\/\-\.]/).map(p => parseInt(p,10));
+    if (parts.length >=3) {
+        // detect if it is yyyy-mm-dd or mm/dd/yyyy
+        if (parts[0] > 31) {
+            return new Date(parts[0], (parts[1]||1)-1, parts[2]||1);
+        } else {
+            return new Date(parts[2], (parts[0]||1)-1, parts[1]||1);
+        }
+    }
+    return null;
+}
+
+/* Build monthly time-series data from transactions */
+function buildMonthlySeries() {
+    const series = {}; // key: YYYY-MM, value: { income, expense }
+    transactions.forEach(t => {
+        const d = parseDateFromString(t.date) || new Date();
+        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        if (!series[key]) series[key] = { income: 0, expense: 0 };
+        if (t.type === 'income') series[key].income += t.amount;
+        else series[key].expense += t.amount;
+    });
+    // sort keys ascending
+    const keys = Object.keys(series).sort();
+    const labels = keys;
+    const incomes = keys.map(k => series[k].income);
+    const expenses = keys.map(k => series[k].expense);
+    return { labels, incomes, expenses };
+}
+
+/* Time series chart instance */
+let timeSeriesChart = null;
+function showTimeSeriesChart() {
+    const ctx = document.getElementById("financeChart").getContext("2d");
+    const data = buildMonthlySeries();
+    // fallback sample if no real data
+    const labs = data.labels.length ? data.labels : [ (new Date()).getFullYear() + '-' + String((new Date()).getMonth()+1).padStart(2,'0') ];
+    const inc = data.incomes.length ? data.incomes : [0];
+    const exp = data.expenses.length ? data.expenses : [0];
+
+    if (animatedChart) { animatedChart.destroy(); animatedChart = null; }
+    if (timeSeriesChart) timeSeriesChart.destroy();
+
+    timeSeriesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labs,
+            datasets: [
+                {
+                    label: 'Income',
+                    data: inc,
+                    tension: 0.3,
+                    fill: false,
+                    borderColor: 'hsl(140 60% 40%)',
+                    pointRadius: 4
+                },
+                {
+                    label: 'Expense',
+                    data: exp,
+                    tension: 0.3,
+                    fill: false,
+                    borderColor: 'hsl(10 70% 50%)',
+                    pointRadius: 4
+                }
+            ]
+        },
+        options: {
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            return `${ctx.dataset.label}: $${ctx.raw}`;
+                        }
+                    }
+                }
+            },
+            maintainAspectRatio: false
+        }
+    });
+
+    const canvas = document.getElementById("financeChart");
+    canvas.style.height = "320px";
+}
+
+/* Hook chart mode UI */
+const btnCategoryChart = document.getElementById("btnCategoryChart");
+const btnTimeSeriesChart = document.getElementById("btnTimeSeriesChart");
+btnCategoryChart.addEventListener("click", () => {
+    updateAnimatedChart();
+});
+btnTimeSeriesChart.addEventListener("click", () => {
+    showTimeSeriesChart();
+});
+
+/* Grouping summaries */
+const groupBySelect = document.getElementById("groupBy");
+const periodSummary = document.getElementById("periodSummary");
+
+function buildGroupSummary() {
+    const group = groupBySelect ? groupBySelect.value : 'monthly';
+    if (group === 'none') {
+        periodSummary.textContent = 'No grouping applied.';
+        return;
+    }
+    if (group === 'monthly') {
+        const series = buildMonthlySeries();
+        // latest month summary
+        if (!series.labels.length) {
+            periodSummary.textContent = 'No monthly data.';
+            return;
+        }
+        const last = series.labels[series.labels.length - 1];
+        const income = series.incomes[series.incomes.length -1] || 0;
+        const expense = series.expenses[series.expenses.length -1] || 0;
+        periodSummary.innerHTML = `<strong>${last}</strong>: Income $${income} — Expenses $${expense}`;
+    } else if (group === 'weekly') {
+        // build week buckets: ISO week (approx using getWeek)
+        const weekSums = {};
+        transactions.forEach(t => {
+            const d = parseDateFromString(t.date) || new Date();
+            const y = d.getFullYear();
+            // simple week number using Jan 1 offset
+            const onejan = new Date(y,0,1);
+            const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay()+1)/7);
+            const key = `${y}-W${String(week).padStart(2,'0')}`;
+            if (!weekSums[key]) weekSums[key] = { income:0, expense:0 };
+            if (t.type === 'income') weekSums[key].income += t.amount;
+            else weekSums[key].expense += t.amount;
+        });
+        const keys = Object.keys(weekSums).sort();
+        if (!keys.length) { periodSummary.textContent = 'No weekly data.'; return; }
+        const last = keys[keys.length-1];
+        const s = weekSums[last];
+        periodSummary.innerHTML = `<strong>${last}</strong>: Income $${s.income} — Expenses $${s.expense}`;
+    }
+}
+
+/* update UI override to include group summary and chart selection handling */
+const seedBtn = document.getElementById("seedBtn");
+if (seedBtn) seedBtn.addEventListener("click", () => { seedSample(); });
+
+if (groupBySelect) {
+    groupBySelect.addEventListener("change", () => {
+        buildGroupSummary();
+        updateUI();
+    });
+}
+
+/* Update chart on storage change and at load */
+const originalUpdateUIRef = updateUI;
+updateUI = function() {
+    originalUpdateUIRef();
+    buildGroupSummary();
+};
+
+/* Print report generation */
+const printReportBtn = document.getElementById("printReportBtn");
+const printArea = document.getElementById("printArea");
+const printSummary = document.getElementById("printSummary");
+const printTransactions = document.getElementById("printTransactions");
+
+function makePrintFriendly() {
+    // summary
+    const inc = transactions.reduce((s,t)=> t.type==='income' ? s + t.amount : s, 0);
+    const exp = transactions.reduce((s,t)=> t.type==='expense' ? s + t.amount : s, 0);
+    const bal = inc - exp;
+    printSummary.innerHTML = `<p><strong>Total Income:</strong> $${inc} &nbsp;&nbsp; <strong>Total Expense:</strong> $${exp} &nbsp;&nbsp; <strong>Balance:</strong> $${bal}</p>`;
+
+    // transactions table
+    const rows = transactions.map(t => {
+        return `<tr><td>${t.date}</td><td>${t.title}</td><td>${t.category}</td><td>${t.type}</td><td>$${t.amount}</td></tr>`;
+    }).join('');
+    printTransactions.innerHTML = `<table class="print-table"><thead><tr><th>Date</th><th>Title</th><th>Category</th><th>Type</th><th>Amount</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+printReportBtn.addEventListener("click", () => {
+    makePrintFriendly();
+    // show print area then trigger print
+    window.setTimeout(() => {
+        window.print();
+    }, 100);
+});
+
+/* Also expose a CSV + PDF friendly export (CSV already exists). */
+
+/* Ensure charts update when transactions change */
+const originalUpdateLocalStorageRef = updateLocalStorage;
+updateLocalStorage = function() {
+    originalUpdateLocalStorageRef();
+    // refresh charts & UI that depend on storage
+    updateAnimatedChart();
+    showTimeSeriesChart();
+};
+
+/* On load, ensure proper chart shown (category by default) */
+window.addEventListener("load", () => {
+    // show category breakdown initially
+    updateAnimatedChart();
+    buildGroupSummary();
+});
+
+/* Keep global helper to clear data if needed (dev) */
+window.clearAllData = function() {
+    if (!confirm("Clear all stored transactions?")) return;
+    transactions = [];
+    updateLocalStorage();
+    updateUI();
+};

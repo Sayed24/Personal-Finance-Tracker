@@ -1,1 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Tracker</title>
+    <link rel="stylesheet" href="style.css">
 
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Personal Finance Tracker</h1>
+        <p>Track your income, expenses, and monthly spending.</p>
+    </header>
+
+    <section class="tracker">
+
+        <div class="input-section">
+            <h2>Add Transaction</h2>
+
+            <input id="title" type="text" placeholder="Title (e.g., Salary, Rent)" />
+
+            <input id="amount" type="number" placeholder="Amount" />
+
+            <select id="type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+
+            <select id="category">
+                <option value="General">General</option>
+                <option value="Salary">Salary</option>
+                <option value="Food">Food</option>
+                <option value="Bills">Bills</option>
+                <option value="Transport">Transport</option>
+                <option value="Shopping">Shopping</option>
+            </select>
+
+            <button id="addBtn">Add Transaction</button>
+        </div>
+
+        <div class="summary-section">
+            <h2>Summary</h2>
+
+            <div class="summary-box">
+                <p>Total Income</p>
+                <h3 id="totalIncome">$0</h3>
+            </div>
+
+            <div class="summary-box">
+                <p>Total Expenses</p>
+                <h3 id="totalExpense">$0</h3>
+            </div>
+
+            <div class="summary-box">
+                <p>Balance</p>
+                <h3 id="balance">$0</h3>
+            </div>
+        </div>
+    </section>
+
+    <section class="transactions">
+        <h2>Transactions</h2>
+        <div id="transactionList"></div>
+    </section>
+
+    <section>
+        <h2>Monthly Chart</h2>
+        <canvas id="financeChart"></canvas>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

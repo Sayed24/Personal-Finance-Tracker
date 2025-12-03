@@ -231,6 +231,8 @@ button:hover {
     border-radius: 10px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.04);
 }
+.chart-controls { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.chart-wrap { position:relative; height:340px; }
 
 /* modal */
 .modal {
@@ -293,3 +295,17 @@ body.dark button { background: linear-gradient(90deg,#6b7bff,#8a6bff); }
     animation: fadeIn 0.25s ease;
 }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
+
+/* Print styles */
+@media print {
+    body * { visibility: hidden; }
+    #printArea, #printArea * { visibility: visible; }
+    #printArea { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
+    .chart-wrap canvas { max-width: 100% !important; height: auto !important; }
+    .modal, .site-footer, .header-controls { display: none !important; }
+}
+
+/* small extras for print area */
+.print-area h1 { font-size: 20px; margin-bottom: 8px; }
+.print-table { width: 100%; border-collapse: collapse; }
+.print-table th, .print-table td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }

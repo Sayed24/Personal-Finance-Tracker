@@ -6,6 +6,7 @@
   font-family: "Inter", Arial, sans-serif;
 }
 
+/* BODY & THEMES */
 body {
   background: var(--bg);
   color: var(--text);
@@ -13,7 +14,6 @@ body {
   padding: 20px;
 }
 
-/* THEMES */
 body.theme-blue {
   --bg: #f5f7ff;
   --text: #111;
@@ -68,9 +68,14 @@ body.dark {
   color: white;
   cursor: pointer;
   box-shadow: 0 0 10px var(--primary-glow);
+  transition: 0.3s;
 }
 
-/* MOBILE NAV */
+.toggle-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* MOBILE NAVIGATION */
 .mobile-nav {
   position: fixed;
   top: 0;
@@ -157,6 +162,11 @@ input, select {
   color: white;
   border-radius: 12px;
   cursor: pointer;
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.export-btn:hover {
+  transform: translateY(-2px);
 }
 
 /* SUMMARY */
@@ -191,6 +201,7 @@ input, select {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 5px 5px 12px rgba(0,0,0,0.05), -5px -5px 12px rgba(255,255,255,0.6);
 }
 
 .action-btns {
@@ -205,13 +216,29 @@ input, select {
   border: none;
   cursor: pointer;
   color: #fff;
+  font-size: 14px;
 }
 
 .edit-btn { background: #f59e0b; }
 .delete-btn { background: #ef4444; }
 
+.transactions li:hover {
+  transform: translateY(-2px);
+  transition: 0.2s;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 12px;
+  font-size: 14px;
+  color: var(--text);
+}
+
 /* MOBILE */
 @media (max-width: 768px) {
   .summary { flex-direction: column; }
   .filters { flex-direction: column; }
+  .card { padding: 15px; }
+  .toggle-btn { padding: 8px 12px; font-size: 14px; }
 }

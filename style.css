@@ -309,3 +309,59 @@ body.dark button { background: linear-gradient(90deg,#6b7bff,#8a6bff); }
 .print-area h1 { font-size: 20px; margin-bottom: 8px; }
 .print-table { width: 100%; border-collapse: collapse; }
 .print-table th, .print-table td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+
+/* ====== FIXES & ENHANCEMENTS ADDED BELOW (keeps your original CSS above intact) ====== */
+
+/* Make input-section and summary-section fluid on small screens */
+@media (max-width: 600px) {
+    .input-section, .summary-section {
+        width: calc(100% - 40px);
+        margin: 0 20px;
+    }
+    .transaction-list { margin: 0 16px 24px 16px; }
+    .transactions-header { margin: 16px; }
+    .chart-wrap { height: 260px !important; }
+    .chart-section { margin: 12px 12px 30px 12px; padding: 12px; }
+}
+
+/* Make chart canvas responsive */
+.chart-wrap canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* Ensure buttons shrink on mobile */
+.header-controls .btn.small {
+    padding: 6px 8px;
+    font-size: 13px;
+}
+
+/* Theme (glass) additional variables */
+body.theme-glass {
+    --primary: #c084fc;
+    --glass-bg: rgba(255,255,255,0.12);
+    background: linear-gradient(135deg,#654ea3 0%, #eaafc8 100%);
+}
+body.theme-glass .input-section,
+body.theme-glass .summary-section,
+body.theme-glass .chart-section,
+body.theme-glass .modal-content {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Improve modal for mobile */
+.modal-content { width: 92%; max-width: 420px; }
+
+/* Small utility: hide spinner on number inputs for mobile */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* Ensure print area is legible in dark mode for print */
+body.dark #printArea, body.theme-glass #printArea {
+    color: #111;
+    background: #fff;
+}

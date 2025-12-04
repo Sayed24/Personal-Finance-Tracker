@@ -621,3 +621,157 @@ window.clearAllData = function() {
     updateLocalStorage();
     updateUI();
 };
+
+/* ====== FIXES & ENHANCEMENTS ADDED BELOW (keeps your original JS above intact) ====== */
+
+/* Guard helpers: ensure elements exist before operating */
+function safeGet(id) {
+    return document.getElementById(id) || null;
+}
+
+/* 1) Robust chart updater (avoids crashing when canvas/context missing) */
+function safeUpdateAnimatedChart() {
+    const canvas = safeGet('financeChart');
+    if (!canvas) return;
+    try {
+        updateAnimatedChart();
+    } catch (err) {
+        console.warn('updateAnimatedChart error:', err);
+    }
+}
+function safeShowTimeSeriesChart() {
+    const canvas = safeGet('financeChart');
+    if (!canvas) return;
+    try {
+        showTimeSeriesChart();
+    } catch (err) {
+        console.warn('showTimeSeriesChart error:', err);
+    }
+}
+
+/* 2) Theme toggle (switch between default blue and glass/purple theme and persist) */
+const themeToggleBtn = safeGet('themeToggle');
+(function initTheme() {
+    const saved = localStorage.getItem('finance-theme');
+    if (saved === 'glass') {
+        document.body.classList.add('theme-glass');
+    } else {
+        document.body.classList.remove('theme-glass');
+    }
+})();
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('theme-glass');
+        const active = document.body.classList.contains('theme-glass') ? 'glass' : 'blue';
+        localStorage.setItem('finance-theme', active);
+    });
+}
+
+/* 3) Improve dark mode persistence & wiring (safe) */
+const darkToggle = safeGet('darkModeToggle');
+if (darkToggle) {
+    darkToggle.addEventListener('change', () => {
+        applyDarkMode(darkToggle.checked);
+    });
+    // initialize (already done by original initDark, re-apply)
+    (function reinitDark() {
+        const dark = localStorage.getItem("finance-dark") === "1";
+        darkToggle.checked = dark;
+        applyDarkMode(dark);
+    })();
+}
+
+/* 4) Hook chart buttons safely */
+const safeBtnCat = safeGet('btnCategoryChart');
+const safeBtnTs = safeGet('btnTimeSeriesChart');
+if (safeBtnCat) safeBtnCat.addEventListener('click', safeUpdateAnimatedChart);
+if (safeBtnTs) safeBtnTs.addEventListener('click', safeShowTimeSeriesChart);
+
+/* 5) Ensure exportCsvBtn exists */
+const safeExportBtn = safeGet('exportCsvBtn');
+if (safeExportBtn && !exportCsvBtn) {
+    // create fallback - but original exportCsvBtn variable exists above usually
+    safeExportBtn.addEventListener('click', () => {
+        // reuse export CSV logic if exportCsvBtn wasn't bound earlier
+        if (!transactions.length) return alert("No transactions to export.");
+        const header = ["Title","Amount","Type","Category","Date"];
+        const rows = transactions.map(t => [
+            `"${t.title.replace(/"/g,'""')}"`,
+            t.amount,
+            t.type,
+            t.category,
+            `"${t.date}"`
+        ]);
+        const csv = [header.join(","), ...rows.map(r => r.join(","))].join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const now = new Date();
+        a.download = `finance-export-${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    });
+}
+
+/* 6) Make updateLocalStorage also refresh charts safely (ensure original behavior preserved) */
+const origUpdateLocal = updateLocalStorage;
+updateLocalStorage = function() {
+    origUpdateLocal();
+    safeUpdateAnimatedChart();
+    safeShowTimeSeriesChart();
+};
+
+/* 7) Ensure initial charts render without throwing */
+window.addEventListener('DOMContentLoaded', () => {
+    // initial render after DOM ready
+    try {
+        safeUpdateAnimatedChart();
+    } catch(e) {}
+});
+
+/* 8) Improve responsiveness on orientation change */
+window.addEventListener('orientationchange', () => {
+    // redraw chart to adapt to new size
+    setTimeout(() => {
+        safeUpdateAnimatedChart();
+        safeShowTimeSeriesChart();
+    }, 300);
+});
+
+/* 9) Improve print handler to reveal print area briefly (keeps original logic) */
+if (typeof printReportBtn !== 'undefined' && printReportBtn) {
+    printReportBtn.addEventListener('click', () => {
+        makePrintFriendly();
+        // show print area visually for print (some browsers hide rarely)
+        const pa = safeGet('printArea');
+        if (pa) pa.style.display = 'block';
+        setTimeout(() => {
+            window.print();
+            if (pa) pa.style.display = '';
+        }, 120);
+    });
+}
+
+/* 10) Small helper: make sure seed button binds even if inserted later */
+const safeSeed = safeGet('seedBtn');
+if (safeSeed && !window.seedSampleBound) {
+    safeSeed.addEventListener('click', () => {
+        if (typeof seedSample === 'function') seedSample();
+    });
+    window.seedSampleBound = true;
+}
+
+/* 11) Fix: ensure transaction count updates even when filter hides items */
+(function wrapUpdateUIForCount() {
+    const orig = updateUI;
+    updateUI = function() {
+        orig();
+        const el = safeGet('transactionsCount');
+        if (el) el.textContent = `${transactions.length} total`;
+    };
+})();
+
+/* End of FIXES & ENHANCEMENTS */

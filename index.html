@@ -1,101 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Personal Finance Tracker</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Personal Finance Tracker</title>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+    <link rel="stylesheet" href="style.css" />
 </head>
-<body class="theme-blue">
+<body>
 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="logo">
-      <span class="coin-icon">🪙</span>
-      <h1>Finance Tracker</h1>
+    <!-- Logo + header -->
+    <header class="site-header">
+        <div class="logo">
+            <!-- Coin Icon -->
+            <svg class="coin-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" fill="url(#g)"/>
+                <path d="M12 7v10M9 9h6a2 2 0 110 4h-4" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs>
+                    <linearGradient id="g" x1="0" x2="1">
+                        <stop offset="0" stop-color="#F6C34E"/>
+                        <stop offset="1" stop-color="#F0A500"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div class="title-block">
+                <h1>Finance Tracker</h1>
+                <p class="subtitle">Modern UI • Income & Expenses • Chart.js</p>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <label class="toggle">
+                <input id="darkModeToggle" type="checkbox" />
+                <span class="slider"></span>
+            </label>
+            <button id="themeToggle" class="btn small">Theme</button>
+            <button id="exportCsvBtn" class="btn small"><i class="fa-regular fa-file-csv"></i> Export CSV</button>
+            <button id="printReportBtn" class="btn small"><i class="fa-solid fa-print"></i> Print Report</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="tracker">
+
+            <div class="input-section">
+                <h2>Add Transaction</h2>
+
+                <input id="title" type="text" placeholder="Title (e.g., Salary, Rent)" />
+
+                <input id="amount" type="number" placeholder="Amount" />
+
+                <select id="type">
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+
+                <select id="category">
+                    <option value="General">General</option>
+                    <option value="Salary">Salary</option>
+                    <option value="Food">Food</option>
+                    <option value="Bills">Bills</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Health">Health</option>
+                    <option value="Education">Education</option>
+                    <option value="Savings">Savings</option>
+                    <option value="Investment">Investment</option>
+                </select>
+
+                <button id="addBtn">Add Transaction</button>
+
+                <!-- quick actions -->
+                <div class="quick-actions">
+                    <label for="filterCategory">Filter:</label>
+                    <select id="filterCategory">
+                        <option value="all">All categories</option>
+                        <option value="General">General</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Food">Food</option>
+                        <option value="Bills">Bills</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Health">Health</option>
+                        <option value="Education">Education</option>
+                        <option value="Savings">Savings</option>
+                        <option value="Investment">Investment</option>
+                    </select>
+
+                    <label for="groupBy">Group:</label>
+                    <select id="groupBy">
+                        <option value="none">None</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly" selected>Monthly</option>
+                    </select>
+
+                    <button id="seedBtn" class="btn small ghost">Seed Sample</button>
+                </div>
+            </div>
+
+            <div class="summary-section">
+                <h2>Summary</h2>
+
+                <div class="summary-box">
+                    <p>Total Income</p>
+                    <h3 id="totalIncome">$0</h3>
+                </div>
+
+                <div class="summary-box">
+                    <p>Total Expenses</p>
+                    <h3 id="totalExpense">$0</h3>
+                </div>
+
+                <div class="summary-box">
+                    <p>Balance</p>
+                    <h3 id="balance">$0</h3>
+                </div>
+
+                <div class="summary-box small">
+                    <p>Period Summary</p>
+                    <div id="periodSummary">—</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="transactions">
+            <div class="transactions-header">
+                <h2>Transactions</h2>
+                <div class="transactions-summary">
+                    <small id="transactionsCount">0</small>
+                </div>
+            </div>
+
+            <div id="transactionList" class="transaction-list"></div>
+        </section>
+
+        <section class="chart-section">
+            <div class="chart-controls">
+                <h2>Charts</h2>
+                <div class="chart-buttons">
+                    <button id="btnCategoryChart" class="btn small">Category Breakdown</button>
+                    <button id="btnTimeSeriesChart" class="btn small">Monthly Trend</button>
+                </div>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="financeChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Printable report area -->
+        <section id="printArea" class="print-area" aria-hidden="true">
+            <h1>Finance Tracker — Report</h1>
+            <div id="printSummary"></div>
+            <div id="printTransactions"></div>
+            <div id="printCharts"></div>
+        </section>
+    </main>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal" aria-hidden="true">
+        <div class="modal-content">
+            <h3>Edit Transaction</h3>
+            <input id="editTitle" type="text" placeholder="Title" />
+            <input id="editAmount" type="number" placeholder="Amount" />
+            <select id="editType">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+            <select id="editCategory">
+                <option value="General">General</option>
+                <option value="Salary">Salary</option>
+                <option value="Food">Food</option>
+                <option value="Bills">Bills</option>
+                <option value="Transport">Transport</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Health">Health</option>
+                <option value="Education">Education</option>
+                <option value="Savings">Savings</option>
+                <option value="Investment">Investment</option>
+            </select>
+
+            <div class="modal-actions">
+                <button id="saveEditBtn" class="btn">Save</button>
+                <button id="cancelEditBtn" class="btn ghost">Cancel</button>
+            </div>
+        </div>
     </div>
-    <div class="toggles">
-      <button id="menuToggle" class="toggle-btn">☰</button>
-      <button id="themeToggle" class="toggle-btn">🎨</button>
-      <button id="darkModeToggle" class="toggle-btn">🌙</button>
-    </div>
-  </header>
 
-  <!-- MOBILE NAVIGATION -->
-  <nav id="mobileNav" class="mobile-nav">
-    <ul>
-      <li><a href="#add-transaction">Add Transaction</a></li>
-      <li><a href="#summary">Summary</a></li>
-      <li><a href="#chart-section">Charts</a></li>
-      <li><a href="#transactions">Transactions</a></li>
-    </ul>
-  </nav>
+    <footer class="site-footer">
+        <p>Built for interviews — show this live on your GitHub Pages link.</p>
+    </footer>
 
-  <!-- ADD TRANSACTION -->
-  <section id="add-transaction" class="add-transaction card">
-    <h2>Add Transaction</h2>
-    <form id="transactionForm">
-      <input type="text" id="description" placeholder="Description" required>
-      <input type="number" id="amount" placeholder="Amount" required>
-      <select id="category">
-        <option value="Salary">Salary</option>
-        <option value="Food">Food</option>
-        <option value="Bills">Bills</option>
-        <option value="Shopping">Shopping</option>
-        <option value="Entertainment">Entertainment</option>
-        <option value="Other">Other</option>
-      </select>
-      <button type="submit" class="add-btn">Add</button>
-    </form>
-  </section>
-
-  <!-- FILTERS -->
-  <section class="filters card">
-    <select id="filterCategory">
-      <option value="All">All Categories</option>
-      <option value="Salary">Salary</option>
-      <option value="Food">Food</option>
-      <option value="Bills">Bills</option>
-      <option value="Shopping">Shopping</option>
-      <option value="Entertainment">Entertainment</option>
-      <option value="Other">Other</option>
-    </select>
-    <button id="exportCSV" class="export-btn">Export CSV</button>
-  </section>
-
-  <!-- SUMMARY -->
-  <section id="summary" class="summary">
-    <div class="card">
-      <h3>Total Income</h3>
-      <p id="totalIncome">$0</p>
-    </div>
-    <div class="card">
-      <h3>Total Expenses</h3>
-      <p id="totalExpenses">$0</p>
-    </div>
-    <div class="card">
-      <h3>Balance</h3>
-      <p id="balance">$0</p>
-    </div>
-  </section>
-
-  <!-- CHART -->
-  <section id="chart-section" class="chart-section card">
-    <canvas id="financeChart"></canvas>
-  </section>
-
-  <!-- TRANSACTIONS -->
-  <section id="transactions" class="transactions card">
-    <h2>Transactions</h2>
-    <ul id="transactionList"></ul>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer card">
-    <p>Personal Finance Tracker &copy; 2025</p>
-  </footer>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
